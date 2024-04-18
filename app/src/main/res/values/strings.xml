@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Reservation2024</string>
+    <string name="textTime">예약에 걸린 시간</string>
+    <string name="btnStart">예약 시작</string>
+    <string name="btnDone">예약 완료</string>
+    <string name="radioDate">날짜 설정</string>
+    <string name="radioTime">시간 설정</string>
+</resources>
