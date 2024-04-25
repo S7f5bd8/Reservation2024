@@ -5,18 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.View
-import android.widget.Button
 import android.widget.CalendarView
 import android.widget.Chronometer
 import android.widget.RadioGroup
-import android.widget.RadioGroup.OnCheckedChangeListener
 import android.widget.TextView
 import android.widget.TimePicker
 
 class MainActivity : AppCompatActivity() {
     lateinit var chrono : Chronometer
-    lateinit var btnStart : Button
-    lateinit var btnDone : Button
     lateinit var rg : RadioGroup
     lateinit var calendar : CalendarView
     lateinit var timePick : TimePicker
@@ -30,8 +26,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         chrono = findViewById<Chronometer>(R.id.chrono)
-        btnStart = findViewById<Button>(R.id.btnStart)
-        btnDone = findViewById<Button>(R.id.btnDone)
         rg = findViewById<RadioGroup>(R.id.rg)
         calendar = findViewById<CalendarView>(R.id.calendar)
         timePick = findViewById<TimePicker>(R.id.timePick)
@@ -42,16 +36,33 @@ class MainActivity : AppCompatActivity() {
 
         rg.setOnCheckedChangeListener(rgListener)
 
-        btnStart.setOnClickListener{
+        chrono.setOnClickListener {
             chrono.base = SystemClock.elapsedRealtime()
             chrono.start()
             chrono.setTextColor(Color.MAGENTA)
+            rg.visibility = View.VISIBLE
         }
 
-        btnDone.setOnClickListener {
+        textResult.setOnLongClickListener {
             chrono.stop()
             chrono.setTextColor(Color.CYAN)
-            textResult.setText("" + selectedYear + "년" +selectedMonth + "월" + selectedDay + "일")
+            selectedYear = getYearFromCalendar()
+            selectedMonth = getMonthFromCalendar()
+            selectedDay = getDayFromCalendar()
+
+            val selectedHour = timePick.currentHour
+            val selectedMinute = timePick.currentMinute
+
+            textResult.setText("" + selectedYear + "년" +(selectedMonth+1) + "월" + selectedDay + "일")
+            textResult.setText("" + timePick.currentHour+"시 ")
+            textResult.setText("" + timePick.currentMinute + "분 ")
+            textResult.append(" 예약 완료")
+
+            rg.visibility = View.INVISIBLE
+            calendar.visibility = View.INVISIBLE
+            timePick.visibility = View.INVISIBLE
+
+            return@setOnLongClickListener true
         }
 
         calendar.setOnDateChangeListener { view, year, month, dayOfMonth ->
@@ -61,10 +72,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    var rgListener = OnCheckedChangeListener {group, CheckedId ->
+    private fun getYearFromCalendar(): Int {
+        val calendarDate = java.util.Calendar.getInstance()
+        calendarDate.timeInMillis = calendar.date
+        return calendarDate.get(java.util.Calendar.YEAR)
+    }
+
+    private fun getMonthFromCalendar(): Int {
+        val calendarDate = java.util.Calendar.getInstance()
+        calendarDate.timeInMillis = calendar.date
+        return calendarDate.get(java.util.Calendar.MONTH)
+    }
+
+    private fun getDayFromCalendar(): Int {
+        val calendarDate = java.util.Calendar.getInstance()
+        calendarDate.timeInMillis = calendar.date
+        return calendarDate.get(java.util.Calendar.DAY_OF_MONTH)
+    }
+
+    var rgListener = RadioGroup.OnCheckedChangeListener { group, CheckedId ->
         calendar.visibility = View.INVISIBLE
         timePick.visibility = View.INVISIBLE
-        when(rg.checkedRadioButtonId){
+        when (rg.checkedRadioButtonId) {
             R.id.rbDate -> calendar.visibility = View.VISIBLE
             R.id.rbTime -> timePick.visibility = View.VISIBLE
         }
